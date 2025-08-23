@@ -2,11 +2,8 @@
   "version": 2,
   "builds": [
     {
-      "src": "invitehub/index.html",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "invitehub/dist"
-      }
+      "src": "invitehub/package.json",
+      "use": "@vercel/static-build"
     },
     {
       "src": "backend/server.js",
@@ -20,7 +17,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "invitehub/index.html"
+      "dest": "invitehub/dist/index.html"
     }
   ],
   "installCommand": "npm install --prefix invitehub && npm install --prefix backend",
