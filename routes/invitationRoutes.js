@@ -1,0 +1,29 @@
+const express = require("express");
+const { createInvitation, getInvitationsByEmail, getAllInvitations, deleteInvitation, uploadMedia, getInvitationById, deleteMedia } = require("../controllers/invitationControllers");
+const upload = require("../middleware/upload");
+const { requireAuth } = require("../middleware/authMiddleware"); // Uncomment if authentication is needed
+
+const router = express.Router();
+
+// Create Invitation Route
+router.post("/create", upload.single("invitationImage"), createInvitation);
+
+// Get Invitations by Email Route
+router.get("/user/:email", getInvitationsByEmail); // Added new route
+
+// Get All Public Invitations Route
+router.get("/all", getAllInvitations); // New route to fetch all public invitations
+
+// Get Invitation by ID Route
+router.get("/:id", getInvitationById); // New route to fetch a single invitation by ID
+
+// Delete Invitation Route
+router.delete("/:id", deleteInvitation); // New route to delete an invitation by ID
+
+// Upload Media for Invitation Route
+router.post("/media/upload", requireAuth, upload.array("media", 3), uploadMedia);
+
+// Delete Media from Invitation Route
+router.delete("/media/:invitationId/*publicId", requireAuth, deleteMedia);
+
+module.exports = router;
