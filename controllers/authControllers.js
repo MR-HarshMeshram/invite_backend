@@ -56,13 +56,3 @@ exports.logoutUser = (req, res) => {
 exports.me = (req, res) => {
   return res.json({ user: req.user });
 };
-
-
-exports.logoutUser1 = (req, res) => {
-  res.clearCookie("rtk", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.COOKIE_SECURE === "true"
-  });
-  return res.json({ message: "Logged out" });
-};

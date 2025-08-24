@@ -1,6 +1,6 @@
 const express = require("express");
 const passport = require("passport");
-const { googleCallbackHandler, refreshToken, logoutUser, me, logoutUser1 } = require("../controllers/authControllers");
+const { googleCallbackHandler, refreshToken, logoutUser, me } = require("../controllers/authControllers");
 const { requireAuth } = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -24,7 +24,7 @@ router.post("/refresh", refreshToken);
 // Logout → clears refresh cookie
 router.post("/logout", logoutUser);
 
-router.post("/logout1", logoutUser1);
+//router.post("/logout1", logoutUser1);
 
 
 module.exports = router;
