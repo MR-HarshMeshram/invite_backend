@@ -10,7 +10,10 @@ const app = express();
 // Middleware
 app.use(express.json()); // Body parser for JSON
 app.use(express.urlencoded({ extended: true })); // Body parser for URL-encoded data
-app.use(cors({ origin: "http://localhost:5173", credentials: true })); // Configure CORS for your frontend
+app.use(cors({
+  origin: ["http://localhost:3000", "https://invitehub.vercel.app"],
+  credentials: true
+})); // Configure CORS for your frontend
 
 // MongoDB
 // mongoose.connect(process.env.MONGO_URI)
