@@ -89,9 +89,9 @@ exports.deleteInvitation = async (req, res) => {
     }
 
     // Optional: Add a check here if you want to ensure only the creator can delete
-    // if (invitation.createdByEmail !== req.user.email) { // Assuming req.user is populated by authentication middleware
-    //   return res.status(403).json({ message: "You are not authorized to delete this invitation." });
-    // }
+    if (invitation.createdByEmail !== req.user.email) { // Assuming req.user is populated by authentication middleware
+      return res.status(403).json({ message: "You are not authorized to delete this invitation." });
+    }
 
     // Delete image from Cloudinary
     if (invitation.invitationImage && invitation.invitationImage.public_id) {
@@ -219,18 +219,72 @@ exports.deleteMedia = async (req, res) => {
 exports.getInvitationById = async (req, res) => {
   try {
     const { id } = req.params;
+
     const invitation = await Invitation.findById(id);
 
     if (!invitation) {
       return res.status(404).json({ message: "Invitation not found." });
     }
 
-    res.status(200).json({
-      message: "Invitation fetched successfully!",
-      invitation,
-    });
+    res.status(200).json(invitation);
   } catch (error) {
     console.error("Error fetching invitation by ID:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.acceptInvitation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userEmail } = req.body; // Assuming the user's email is sent in the request body
+
+    const invitation = await Invitation.findById(id);
+
+    if (!invitation) {
+      return res.status(404).json({ message: "Invitation not found." });
+    }
+
+    // Add user to acceptedUsers if not already present
+    if (!invitation.acceptedUsers.includes(userEmail)) {
+      invitation.acceptedUsers.push(userEmail);
+    }
+
+    // Remove user from declinedUsers if present
+    invitation.declinedUsers = invitation.declinedUsers.filter(email => email !== userEmail);
+
+    await invitation.save();
+
+    res.status(200).json({ message: "Invitation accepted successfully!", invitation });
+  } catch (error) {
+    console.error("Error accepting invitation:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.declineInvitation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { userEmail } = req.body; // Assuming the user's email is sent in the request body
+
+    const invitation = await Invitation.findById(id);
+
+    if (!invitation) {
+      return res.status(404).json({ message: "Invitation not found." });
+    }
+
+    // Add user to declinedUsers if not already present
+    if (!invitation.declinedUsers.includes(userEmail)) {
+      invitation.declinedUsers.push(userEmail);
+    }
+
+    // Remove user from acceptedUsers if present
+    invitation.acceptedUsers = invitation.acceptedUsers.filter(email => email !== userEmail);
+
+    await invitation.save();
+
+    res.status(200).json({ message: "Invitation declined successfully!", invitation });
+  } catch (error) {
+    console.error("Error declining invitation:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

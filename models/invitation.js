@@ -49,6 +49,18 @@ const invitationSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    acceptedUsers: [
+      {
+        type: String, // Store email of accepted users
+        trim: true,
+      },
+    ],
+    declinedUsers: [
+      {
+        type: String, // Store email of declined users
+        trim: true,
+      },
+    ],
   },
   { timestamps: true }
 );
