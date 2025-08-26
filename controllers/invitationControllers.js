@@ -3,7 +3,7 @@ const cloudinary = require("cloudinary").v2;
 
 exports.createInvitation = async (req, res) => {
   try {
-    const { eventName, location, invitedBy, eventPrivacy, createdByEmail } = req.body;
+    const { eventName, location, invitedBy, eventPrivacy, createdByEmail, description, dateTime } = req.body;
 
     if (!req.file) {
       return res.status(400).json({ message: "No image file uploaded." });
@@ -20,6 +20,8 @@ exports.createInvitation = async (req, res) => {
     const invitation = await Invitation.create({
       eventName,
       location,
+      description,
+      dateTime,
       invitedBy,
       eventPrivacy,
       invitationImage,
