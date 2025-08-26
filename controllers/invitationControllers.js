@@ -14,6 +14,18 @@ exports.createInvitation = async (req, res) => {
     // Convert dateTime string to Date object
     const eventDateTime = new Date(dateTime);
 
+    // Log all data being sent to Invitation.create for debugging
+    console.log("Data for Invitation.create:", {
+      eventName,
+      location,
+      description,
+      dateTime: eventDateTime,
+      invitedBy,
+      eventPrivacy,
+      invitationImage,
+      createdByEmail,
+    });
+
     // req.file contains the uploaded file info from multer-storage-cloudinary
     const invitationImage = {
       public_id: req.file.filename,
