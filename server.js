@@ -51,3 +51,10 @@ app.use("/auth", require("./routes/authRoutes"));
 app.use("/invitations", require("./routes/invitationRoutes")); // Add invitation routes
 
 // Removed the duplicate app.listen as it's now inside the mongoose.connect block
+// Keep-Alive Ping
+// ======================
+setInterval(() => {
+  axios.get("https://invite-backend-vk36.onrender.com/")
+    .then(() => console.log("✅ Keep-alive ping sent"))
+    .catch(err => console.error("❌ Keep-alive ping failed:", err.message));
+}, 30 * 1000); // every 30 seconds
