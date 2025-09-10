@@ -53,6 +53,55 @@ exports.createInvitation = async (req, res) => {
   }
 };
 
+exports.updateInvitation = async (req, res) => {
+  try {
+    const { id } = req.params; // Get invitation ID from URL parameters
+    const { eventName, location, invitedBy, eventPrivacy, description, dateTime } = req.body;
+
+    const invitation = await Invitation.findById(id);
+
+    if (!invitation) {
+      return res.status(404).json({ message: "Invitation not found." });
+    }
+
+    // Authorization check: ensure only the creator can update the invitation
+    if (invitation.createdByEmail !== req.user.email) {
+      return res.status(403).json({ message: "You are not authorized to update this invitation." });
+    }
+
+    // Update fields if they are provided in the request body
+    if (eventName) invitation.eventName = eventName;
+    if (location) invitation.location = location;
+    if (description) invitation.description = description;
+    if (dateTime) invitation.dateTime = new Date(dateTime); // Convert to Date object
+    if (invitedBy) invitation.invitedBy = invitedBy;
+    if (eventPrivacy) invitation.eventPrivacy = eventPrivacy;
+
+    // Handle image update if a new file is uploaded
+    if (req.file) {
+      // Delete old image from Cloudinary if it exists
+      if (invitation.invitationImage && invitation.invitationImage.public_id) {
+        await cloudinary.uploader.destroy(invitation.invitationImage.public_id);
+      }
+      // Set new image details
+      invitation.invitationImage = {
+        public_id: req.file.filename,
+        url: req.file.path,
+      };
+    }
+
+    await invitation.save();
+
+    res.status(200).json({
+      message: "Invitation updated successfully!",
+      invitation,
+    });
+  } catch (error) {
+    console.error("Error updating invitation:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 exports.getInvitationsByEmail = async (req, res) => {
   try {
     const { email } = req.params; // Get email from URL parameters
