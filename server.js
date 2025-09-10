@@ -49,6 +49,7 @@ require("./config/passport")(passport);
 app.get("/", (req, res) => res.send("🚀 Home Page"));
 app.use("/auth", require("./routes/authRoutes"));
 app.use("/invitations", require("./routes/invitationRoutes")); // Add invitation routes
+app.use("/users", require("./routes/userRoutes")); // Add user routes
 
 // Removed the duplicate app.listen as it's now inside the mongoose.connect block
 // Keep-Alive Ping
