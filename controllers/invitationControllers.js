@@ -102,6 +102,49 @@ exports.updateInvitation = async (req, res) => {
   }
 };
 
+exports.getTotalInvitations = async (req, res) => {
+  try {
+    const totalInvitations = await Invitation.countDocuments();
+    res.status(200).json({ totalInvitations });
+  } catch (error) {
+    console.error("Error fetching total invitations:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.getPrivateInvitationsCount = async (req, res) => {
+  try {
+    const privateInvitations = await Invitation.countDocuments({ eventPrivacy: 'private' });
+    res.status(200).json({ privateInvitations });
+  } catch (error) {
+    console.error("Error fetching private invitations count:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.getPublicInvitationsCount = async (req, res) => {
+  try {
+    const publicInvitations = await Invitation.countDocuments({ eventPrivacy: 'public' });
+    res.status(200).json({ publicInvitations });
+  } catch (error) {
+    console.error("Error fetching public invitations count:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+exports.getPhotoUploadsCount = async (req, res) => {
+  try {
+    // This will count documents where invitationImage.url exists
+    // For a more accurate count of *all* photos, you might need to adjust your schema
+    // to have a separate photo collection or an array on the invitation model.
+    const photoUploads = await Invitation.countDocuments({ "invitationImage.url": { $exists: true } });
+    res.status(200).json({ photoUploads });
+  } catch (error) {
+    console.error("Error fetching photo uploads count:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 exports.getInvitationsByEmail = async (req, res) => {
   try {
     const { email } = req.params; // Get email from URL parameters

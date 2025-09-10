@@ -1,5 +1,5 @@
 const express = require("express");
-const { createInvitation, getInvitationsByEmail, getAllInvitations, deleteInvitation, uploadMedia, getInvitationById, deleteMedia, acceptInvitation, declineInvitation, updateInvitation } = require("../controllers/invitationControllers");
+const { createInvitation, getInvitationsByEmail, getAllInvitations, deleteInvitation, uploadMedia, getInvitationById, deleteMedia, acceptInvitation, declineInvitation, updateInvitation, getTotalInvitations, getPrivateInvitationsCount, getPublicInvitationsCount, getPhotoUploadsCount } = require("../controllers/invitationControllers");
 const upload = require("../middleware/upload");
 const { requireAuth } = require("../middleware/authMiddleware"); // Uncomment if authentication is needed
 
@@ -34,5 +34,11 @@ router.post("/:id/decline", declineInvitation);
 
 // Update Invitation Route
 router.put("/:id", requireAuth, upload.single("invitationImage"), updateInvitation);
+
+// Dashboard Routes
+router.get("/dashboard/total", getTotalInvitations);
+router.get("/dashboard/private", getPrivateInvitationsCount);
+router.get("/dashboard/public", getPublicInvitationsCount);
+router.get("/dashboard/photos", getPhotoUploadsCount);
 
 module.exports = router;
