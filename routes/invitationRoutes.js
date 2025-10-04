@@ -1,5 +1,5 @@
 const express = require("express");
-const { createInvitation, getInvitationsByEmail, getAllInvitations, deleteInvitation, uploadMedia, getInvitationById, deleteMedia, acceptInvitation, declineInvitation, updateInvitation, getTotalInvitations, getPrivateInvitationsCount, getPublicInvitationsCount, getPhotoUploadsCount, getAcceptedInvitationsByUser } = require("../controllers/invitationControllers");
+const { createInvitation, getInvitationsByEmail, getAllInvitations, deleteInvitation, uploadMedia, getInvitationById, deleteMedia, acceptInvitation, declineInvitation, updateInvitation, getTotalInvitations, getPrivateInvitationsCount, getPublicInvitationsCount, getPhotoUploadsCount, getAcceptedInvitationsByUser, getInvitationDetailsWithReactions } = require("../controllers/invitationControllers");
 const upload = require("../middleware/upload");
 const { requireAuth } = require("../middleware/authMiddleware"); // Uncomment if authentication is needed
 
@@ -34,6 +34,9 @@ router.post("/:id/decline", declineInvitation);
 
 // Get Accepted Invitations by User Route
 router.get("/accepted-by-user/:userEmail", requireAuth, getAcceptedInvitationsByUser);
+
+// Get Invitation Details with Reactions Route
+router.get("/:id/details-with-reactions", getInvitationDetailsWithReactions);
 
 // Update Invitation Route
 router.put("/:id", requireAuth, upload.single("invitationImage"), updateInvitation);
