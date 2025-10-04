@@ -1,5 +1,4 @@
 const Invitation = require("../models/invitation");
-const InvitationReaction = require("../models/InvitationReaction"); // Import InvitationReaction model
 const cloudinary = require("cloudinary").v2;
 
 exports.createInvitation = async (req, res) => {
@@ -419,28 +418,6 @@ exports.declineInvitation = async (req, res) => {
     res.status(200).json({ message: "Invitation declined successfully!", invitation });
   } catch (error) {
     console.error("Error declining invitation:", error);
-    res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
-exports.getInvitationDetailsWithReactions = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const invitation = await Invitation.findById(id);
-
-    if (!invitation) {
-      return res.status(404).json({ message: "Invitation not found." });
-    }
-
-    const reactions = await InvitationReaction.findOne({ invitationId: id });
-
-    res.status(200).json({
-      invitation,
-      reactions: reactions || { cheer: 0, groove: 0, chill: 0, hype: 0 }
-    });
-  } catch (error) {
-    console.error("Error fetching invitation details with reactions:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

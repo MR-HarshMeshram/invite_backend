@@ -3,64 +3,9 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const session = require("express-session");
 const cors = require("cors"); // Import cors
-const WebSocket = require('ws'); // Import WebSocket library
-const InvitationReaction = require('./models/InvitationReaction'); // Import Reaction model
-const Invitation = require('./models/Invitation'); // Import Invitation model
 require("dotenv").config();
 
 const app = express();
-
-// Create a WebSocket server instance
-const wss = new WebSocket.Server({ noServer: true });
-
-// Store all connected WebSocket clients
-const clients = new Set();
-
-wss.on('connection', ws => {
-  console.log('Client connected');
-  clients.add(ws);
-
-  ws.on('message', async message => {
-    console.log(`Received: ${message}`);
-    try {
-      const parsedMessage = JSON.parse(message);
-      if (parsedMessage.type === 'reactionClick') {
-        const { invitationId, reactionType } = parsedMessage.payload;
-
-        // Find and update the reaction count in the database
-        const updatedReaction = await InvitationReaction.findOneAndUpdate(
-          { invitationId },
-          { $inc: { [reactionType]: 1 } },
-          { upsert: true, new: true }
-        );
-
-        // Broadcast the updated reaction counts to all connected clients
-        clients.forEach(client => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({ 
-              type: 'reactionUpdate', 
-              payload: { 
-                invitationId: updatedReaction.invitationId, 
-                [reactionType]: updatedReaction[reactionType]
-              }
-            }));
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error processing WebSocket message:', error);
-    }
-  });
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
-    clients.delete(ws);
-  });
-
-  ws.on('error', error => {
-    console.error('WebSocket error:', error);
-  });
-});
 
 // Middleware
 app.use(express.json()); // Body parser for JSON
@@ -82,14 +27,7 @@ mongoose.connect(process.env.MONGO_URI, {
     console.log("✅ MongoDB connected");
     // Start Server only after MongoDB connection is successful
     const PORT = process.env.PORT || 5000;
-    const server = app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
-
-    // Upgrade HTTP server to WebSocket server
-    server.on('upgrade', (request, socket, head) => {
-      wss.handleUpgrade(request, socket, head, ws => {
-        wss.emit('connection', ws, request);
-      });
-    });
+    app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
   })
   .catch(err => {
     console.error("❌ MongoDB connection error:", err);
