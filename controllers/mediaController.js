@@ -1,5 +1,5 @@
 const Media = require('../models/Media');
-const Invitation = require('../models/Invitation');
+const Invitation = require('../models/invitation');
 const User = require('../models/User');
 
 // @desc    Get all media for gallery (public and accepted private)
