@@ -1,6 +1,6 @@
 const Media = require('../models/Media');
 const Invitation = require('../models/invitation');
-const User = require('../models/User');
+const User = require('../models/user');
 
 // @desc    Get all media for gallery (public and accepted private)
 // @route   GET /api/media/gallery
