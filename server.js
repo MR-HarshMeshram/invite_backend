@@ -12,7 +12,7 @@ const server = http.createServer(app); // Create HTTP server
 const wss = new WebSocket.Server({ server }); // Create WebSocket server
 
 const Media = require("./models/Media"); // Import Media model
-const Invitation = require("./models/Invitation"); // Import Invitation model
+const Invitation = require("./models/invitation"); // Import Invitation model
 
 // Middleware
 app.use(express.json()); // Body parser for JSON
