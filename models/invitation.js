@@ -70,6 +70,24 @@ const invitationSchema = new mongoose.Schema(
         trim: true,
       },
     ],
+    reactions: {
+      cheer: {
+        count: { type: Number, default: 0 },
+        users: [{ type: String }] // Store emails of users who reacted
+      },
+      groove: {
+        count: { type: Number, default: 0 },
+        users: [{ type: String }]
+      },
+      chill: {
+        count: { type: Number, default: 0 },
+        users: [{ type: String }]
+      },
+      hype: {
+        count: { type: Number, default: 0 },
+        users: [{ type: String }]
+      }
+    }
   },
   { timestamps: true }
 );

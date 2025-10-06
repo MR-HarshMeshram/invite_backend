@@ -1,5 +1,5 @@
 const express = require("express");
-const { createInvitation, getInvitationsByEmail, getAllInvitations, deleteInvitation, uploadMedia, getInvitationById, deleteMedia, acceptInvitation, declineInvitation, updateInvitation, getTotalInvitations, getPrivateInvitationsCount, getPublicInvitationsCount, getPhotoUploadsCount, getAcceptedInvitationsByUser } = require("../controllers/invitationControllers");
+const { createInvitation, getInvitationsByEmail, getAllInvitations, deleteInvitation, uploadMedia, getInvitationById, deleteMedia, acceptInvitation, declineInvitation, updateInvitation, getTotalInvitations, getPrivateInvitationsCount, getPublicInvitationsCount, getPhotoUploadsCount, getAcceptedInvitationsByUser, updateReaction, getFeedData } = require("../controllers/invitationControllers");
 const upload = require("../middleware/upload");
 const { requireAuth } = require("../middleware/authMiddleware"); // Uncomment if authentication is needed
 
@@ -43,5 +43,9 @@ router.get("/dashboard/total", getTotalInvitations);
 router.get("/dashboard/private", getPrivateInvitationsCount);
 router.get("/dashboard/public", getPublicInvitationsCount);
 router.get("/dashboard/photos", getPhotoUploadsCount);
+
+// Reaction Routes
+router.post("/:id/reaction", updateReaction);
+router.get("/feed/data", getFeedData);
 
 module.exports = router;

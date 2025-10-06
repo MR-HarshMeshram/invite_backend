@@ -3,9 +3,12 @@ const mongoose = require("mongoose");
 const passport = require("passport");
 const session = require("express-session");
 const cors = require("cors"); // Import cors
+const http = require("http");
+const WebSocketServer = require("./websocket");
 require("dotenv").config();
 
 const app = express();
+const server = http.createServer(app);
 
 // Middleware
 app.use(express.json()); // Body parser for JSON
@@ -27,7 +30,12 @@ mongoose.connect(process.env.MONGO_URI, {
     console.log("✅ MongoDB connected");
     // Start Server only after MongoDB connection is successful
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running at http://localhost:${PORT}`);
+      // Initialize WebSocket server
+      new WebSocketServer(server);
+      console.log("🔌 WebSocket server initialized");
+    });
   })
   .catch(err => {
     console.error("❌ MongoDB connection error:", err);

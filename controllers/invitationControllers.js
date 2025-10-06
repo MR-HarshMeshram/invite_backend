@@ -421,3 +421,90 @@ exports.declineInvitation = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// Update reaction for an invitation
+exports.updateReaction = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reactionType, userEmail } = req.body;
+
+    if (!reactionType || !userEmail) {
+      return res.status(400).json({ message: "Reaction type and user email are required." });
+    }
+
+    const validReactions = ['cheer', 'groove', 'chill', 'hype'];
+    if (!validReactions.includes(reactionType)) {
+      return res.status(400).json({ message: "Invalid reaction type." });
+    }
+
+    const invitation = await Invitation.findById(id);
+    if (!invitation) {
+      return res.status(404).json({ message: "Invitation not found." });
+    }
+
+    const reaction = invitation.reactions[reactionType];
+    
+    // Check if user already reacted with this type
+    const userIndex = reaction.users.indexOf(userEmail);
+    
+    if (userIndex === -1) {
+      // User hasn't reacted yet, add them
+      reaction.users.push(userEmail);
+      reaction.count += 1;
+    } else {
+      // User already reacted, remove their reaction
+      reaction.users.splice(userIndex, 1);
+      reaction.count -= 1;
+    }
+
+    await invitation.save();
+
+    res.status(200).json({
+      message: "Reaction updated successfully!",
+      invitation: {
+        _id: invitation._id,
+        reactions: invitation.reactions
+      }
+    });
+  } catch (error) {
+    console.error("Error updating reaction:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// Get feed data (public invitations + accepted private invitations for user)
+exports.getFeedData = async (req, res) => {
+  try {
+    const { userEmail } = req.query;
+
+    // Get all public invitations
+    const publicInvitations = await Invitation.find({ eventPrivacy: 'public' })
+      .sort({ createdAt: -1 })
+      .limit(20);
+
+    let feedData = [...publicInvitations];
+
+    // If user is logged in, also get their accepted private invitations
+    if (userEmail) {
+      const privateInvitations = await Invitation.find({
+        eventPrivacy: 'private',
+        acceptedUsers: userEmail
+      })
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+      feedData = [...publicInvitations, ...privateInvitations];
+    }
+
+    // Sort all feed data by creation date
+    feedData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    res.status(200).json({
+      message: "Feed data fetched successfully!",
+      feedData
+    });
+  } catch (error) {
+    console.error("Error fetching feed data:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
