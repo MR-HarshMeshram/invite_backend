@@ -6,7 +6,7 @@ exports.createInvitation = async (req, res) => {
     const { eventName, location, invitedBy, eventPrivacy, createdByEmail, description, dateTime } = req.body;
 
     if (!req.file) {
-      return res.status(400).json({ message: "No image file uploaded." });
+      return res.status(400).json({ message: "No media file uploaded." });
     }
 
     console.log("Multer processed file:", req.file);
@@ -18,6 +18,7 @@ exports.createInvitation = async (req, res) => {
     const invitationImage = {
       public_id: req.file.filename,
       url: req.file.path,
+      resource_type: req.file.resource_type || 'image', // Store whether it's an image or video
     };
 
     // Log all data being sent to Invitation.create for debugging
@@ -77,16 +78,19 @@ exports.updateInvitation = async (req, res) => {
     if (invitedBy) invitation.invitedBy = invitedBy;
     if (eventPrivacy) invitation.eventPrivacy = eventPrivacy;
 
-    // Handle image update if a new file is uploaded
+    // Handle media update if a new file is uploaded
     if (req.file) {
-      // Delete old image from Cloudinary if it exists
+      // Delete old media from Cloudinary if it exists
       if (invitation.invitationImage && invitation.invitationImage.public_id) {
-        await cloudinary.uploader.destroy(invitation.invitationImage.public_id);
+        await cloudinary.uploader.destroy(invitation.invitationImage.public_id, {
+          resource_type: invitation.invitationImage.resource_type || 'image'
+        });
       }
-      // Set new image details
+      // Set new media details
       invitation.invitationImage = {
         public_id: req.file.filename,
         url: req.file.path,
+        resource_type: req.file.resource_type || 'image', // Store whether it's an image or video
       };
     }
 
@@ -202,9 +206,22 @@ exports.deleteInvitation = async (req, res) => {
       return res.status(403).json({ message: "You are not authorized to delete this invitation." });
     }
 
-    // Delete image from Cloudinary
+    // Delete main media from Cloudinary
     if (invitation.invitationImage && invitation.invitationImage.public_id) {
-      await cloudinary.uploader.destroy(invitation.invitationImage.public_id);
+      await cloudinary.uploader.destroy(invitation.invitationImage.public_id, {
+        resource_type: invitation.invitationImage.resource_type || 'image'
+      });
+    }
+
+    // Delete all event media from Cloudinary
+    if (invitation.eventMedia && invitation.eventMedia.length > 0) {
+      for (const media of invitation.eventMedia) {
+        if (media.public_id) {
+          await cloudinary.uploader.destroy(media.public_id, {
+            resource_type: media.resource_type || 'image'
+          });
+        }
+      }
     }
 
     // Delete invitation from MongoDB
@@ -244,7 +261,8 @@ exports.uploadMedia = async (req, res) => {
     const uploadedMedia = req.files.map(file => ({
       public_id: file.filename,
       url: file.path,
-      // You might want to add other details like file type, size, etc.
+      resource_type: file.resource_type || 'image', // Store whether it's an image or video
+      original_filename: file.originalname, // Store original filename for display
     }));
 
     // Append new media to the existing eventMedia array in the invitation
@@ -304,7 +322,9 @@ exports.deleteMedia = async (req, res) => {
     }
 
     console.log(`Deleting Cloudinary asset: ${mediaToDelete.public_id}`);
-    await cloudinary.uploader.destroy(mediaToDelete.public_id);
+    await cloudinary.uploader.destroy(mediaToDelete.public_id, {
+      resource_type: mediaToDelete.resource_type || 'image'
+    });
     console.log(`Cloudinary asset with publicId: ${mediaToDelete.public_id} deletion attempted.`);
 
     // Remove from MongoDB invitation's eventMedia array

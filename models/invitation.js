@@ -40,11 +40,20 @@ const invitationSchema = new mongoose.Schema(
         type: String,
         required: true,
       },
+      resource_type: {
+        type: String,
+        default: 'image',
+      },
     },
     eventMedia: [
       {
         public_id: String,
         url: String,
+        resource_type: {
+          type: String,
+          default: 'image',
+        },
+        original_filename: String,
       },
     ],
     // You might want to add a reference to the user who created the invitation
