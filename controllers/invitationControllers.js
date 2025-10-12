@@ -21,6 +21,14 @@ exports.createInvitation = async (req, res) => {
       resource_type: req.file.resource_type || 'image', // Store whether it's an image or video
     };
 
+    console.log('File upload details:', {
+      filename: req.file.filename,
+      path: req.file.path,
+      resource_type: req.file.resource_type,
+      originalname: req.file.originalname,
+      mimetype: req.file.mimetype
+    });
+
     // Log all data being sent to Invitation.create for debugging
     console.log("Data for Invitation.create:", {
       eventName,
